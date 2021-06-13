@@ -10,3 +10,4 @@ def callbacks(state,val_loss):
     else :
         state['stop'] = 0
     state['loss'] = val_loss
+
