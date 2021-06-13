@@ -4,9 +4,14 @@ from utils.metrics import accuracy
 import torch
 import torch.nn as nn
 from model import  Model1
-def train(args,generator):
+from test import test
+
+
+def train(args):
     device = torch.device("cuda")
-    # training loop
+
+    train_gene, val_gene, test_gene = create_data_loader(args)
+
     Model1.to(device)
     Model1.train()
     optimizer = Adam(Model1.parameters(),args.lr)
@@ -15,7 +20,8 @@ def train(args,generator):
     for i in range (args.epoch):
         total_loss = 0
         total_acc = 0
-        for j,data in enumerate(generator):
+        # training loop
+        for j,data in enumerate(train_gene):
             images , labels = data[0].to(device),data[1].to(device)
             optimizer.zero_grad()
             outputs = Model1(images)
@@ -27,6 +33,8 @@ def train(args,generator):
             total_acc += acc
             print(acc)
             print(loss)
-        print('epoch : {} loss : {}  accuracy : {}'.format(i+1,total_loss/(j+1),total_acc/(j+1)))
+        print('Training : epoch : {} loss : {}  accuracy : {}'.format(i+1,total_loss/(j+1),total_acc/(j+1)))
+        acc,loss = test(args,val_gene)
+        print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
 
 

@@ -23,8 +23,8 @@ print(args)
 
 def main():
     if args.phase =='train':
-        train_gene,val_gene,test_gene = data.create_data_loader(args)
-        train(args,train_gene)
+
+        train(args)
 
     else :
         test(args)
