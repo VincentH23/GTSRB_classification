@@ -31,8 +31,8 @@ def train(args):
             total_loss += loss
             acc = accuracy(outputs,labels)
             total_acc += acc
-            print(acc)
-            print(loss)
+            # print(acc)
+            # print(loss)
         print('Training : epoch : {} loss : {}  accuracy : {}'.format(i+1,total_loss/(j+1),total_acc/(j+1)))
         acc,loss = test(args,val_gene)
         print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))

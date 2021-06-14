@@ -27,10 +27,10 @@ def create_data_loader(args):
     data_train = Custom_data_set(data['training'],TRAINING_ROOT,transform=TRANSFORM)
     train_generator = DataLoader(data_train,args.batch,shuffle=True)
     data_val = Custom_data_set(data['validation'], TRAINING_ROOT)
-    val_generator = DataLoader(data_val, len(data['validation']))
+    val_generator = DataLoader(data_val, 2354)
     test_csv = pd.read_csv(TESTING_ROOT+'/'+TESTING_CSV)
     data_test = Custom_data_set(data['validation'], TRAINING_ROOT,csv=test_csv)
-    test_generator = DataLoader(data_test,12630)
+    test_generator = DataLoader(data_test,2105)
     return train_generator, val_generator, test_generator
 
 
@@ -60,9 +60,6 @@ class Custom_data_set(Dataset):
 
 #
 #
-# gen,_,_ = create_data_loader()
-# for i,data in enumerate(gen):
-#     print(data)
 
 
 
