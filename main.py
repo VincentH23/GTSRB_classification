@@ -1,5 +1,4 @@
-from model import Model1
-import data
+
 from train import train
 from test import test
 import argparse
@@ -18,6 +17,8 @@ parser.add_argument('--constrastive',default=False, help="add the contrastive le
 parser.add_argument('--loss_weight',type=list)
 parser.add_argument('--epoch_save',default=5,help='number of epoch between each save',type = int)
 parser.add_argument('--lr',default=0.0005,help='number of epoch between each save',type = float)
+parser.add_argument('--model',default='Resnet')
+parser.add_argument('--temperature',default=1, type=int)
 args = parser.parse_args()
 print(args)
 

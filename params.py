@@ -10,3 +10,8 @@ TRANSFORM = Compose([
     AUG,
     ToTensor()
 ])
+
+TRANSFORM_TESTING = Compose([
+    Resize(IMG_SIZE),
+    ToTensor()
+])
