@@ -19,6 +19,15 @@ class Resnet_Simclr(torch.nn.Module):
         self.classifier = torch.nn.Linear(2048, 43, bias=True)
         self.head = torch.nn.Linear(2048,128,bias=True)
 
+    def forward(self,x,output_mode = 'classifer'):
+        output = self.features_extractor(x)
+        if output_mode == 'classifier':
+            return self.classifier(output)
+        elif output_mode == 'head':
+            return self.head(output)
+        else :
+            return output
+
 
 def get_model(args):
     if args.model =='Resnet':
@@ -30,6 +39,15 @@ def get_model(args):
         Model1 = Resnet_Simclr()
 
     return Model1
+
+
+if __name__== '__main__':
+    model = Resnet_Simclr()
+    model.train()
+    print(model.training,model.features_extractor.training)
+    model.eval()
+    print(model.training, model.features_extractor.training)
+
 
 
 

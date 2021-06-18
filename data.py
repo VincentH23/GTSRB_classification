@@ -3,7 +3,6 @@ import random
 import torch
 from params import *
 from torch.utils.data import Dataset, DataLoader
-from torchvision.transforms import ToTensor, Compose, Resize
 import PIL.Image as Image
 import pandas as pd
 
@@ -14,8 +13,6 @@ def data_split():   # split training / validation set same distribution
     for label in labels:
         samples = os.listdir(TRAINING_ROOT+'/'+label)
         samples = [label+'/'+s for s in samples]
-        random.seed(10)
-        random.shuffle(samples)
         n = len(samples)
         data['training'] += samples[:int(0.7*n)]
         data['validation'] += samples[int(0.7 * n):]

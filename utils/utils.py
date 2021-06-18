@@ -11,3 +11,15 @@ def callbacks(state,val_loss):
         state['stop'] = 0
     state['loss'] = val_loss
 
+def normalize(z):
+    return z/torch.linalg.norm(z,dim=1,keepdim=True)
+
+class Add_Noise_Transform:
+    """Rotate by one of the given angles."""
+
+    def __init__(self):
+        pass
+
+    def __call__(self, x):
+        return add_noise(x)
+
