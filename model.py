@@ -47,6 +47,17 @@ if __name__== '__main__':
     print(model.training,model.features_extractor.training)
     model.eval()
     print(model.training, model.features_extractor.training)
+    print(model.state_dict().keys())
+    A=model.state_dict()
+    torch.save(model,'./model.pth')
+    model = torch.load('./model.pth')
+    model.train()
+    print(model.training, model.features_extractor.training)
+    model.eval()
+    print(model.training, model.features_extractor.training)
+    B=model.state_dict()
+    print(id(A),id(B))
+    print(B[0])
 
 
 

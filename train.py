@@ -10,9 +10,17 @@ from utils.utils import normalize
 
 def train(args):
     device = torch.device("cuda")
+    state = {
+        'epoch': 0,
+        'state_dict': None,
+        'optimizer': None,
+        'training_losses': [],
+        'training_accuracy':[],
+        'validation_losses': [],
+        'validation_accuracy': []
+    }
 
     train_gene, val_gene, test_gene = create_data_loader(args)
-
     Model1 = get_model(args)
     Model1.to(device)
     Model1.train()
@@ -36,8 +44,18 @@ def train(args):
             # print(acc)
             # print(loss)
         print('Training : epoch : {} loss : {}  accuracy : {}'.format(i+1,total_loss/(j+1),total_acc/(j+1)))
+        state['epoch']+=1
+        state['training_losses'].append(total_loss/(j+1))
+        state['training_accuracy'].append(total_acc/(j+1))
         acc,loss = test(args,val_gene)
         print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
+        state['validation_losses'].append(loss)
+        state['validation_accuracy'].append(acc)
+        if (i+1)%args.epoch_save==0:
+            state['optimizer'] = optimizer.state_dict()
+            state['state_dict'] = Model1.state_dict()
+            torch.save(state,'./checkpoint/state.pth')
+
 
 
 def contrastive_train(args):
