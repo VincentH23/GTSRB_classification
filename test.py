@@ -6,9 +6,9 @@ import torch
 import torch.nn as nn
 from model import get_model
 
-def test(args,generator):
+def test(args,generator,model):
     device = torch.device("cuda")
-
+    Model1 =model
     Model1 = get_model(args)
     Model1.to(device)
     Model1.eval()

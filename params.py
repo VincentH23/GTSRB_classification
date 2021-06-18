@@ -1,4 +1,4 @@
-from torchvision.transforms import ToTensor, Compose, Resize,RandomCrop, RandomRotation, RandomGrayscale, RandomChoice,GaussianBlur
+from torchvision.transforms import ToTensor, Compose, Resize,RandomCrop, RandomRotation, RandomGrayscale, RandomChoice,GaussianBlur,Normalize
 from utils.utils import Add_Noise_Transform
 TRAINING_ROOT = './data/Training'
 TESTING_ROOT = './data/Testing'
@@ -7,8 +7,8 @@ IMG_SIZE = (50,50)
 AUG = Compose([RandomCrop(IMG_SIZE),RandomRotation(degrees=(0,180)),RandomGrayscale(),GaussianBlur(5, sigma=(0.1, 2.0)),Add_Noise_Transform()])
 TRANSFORM = Compose([
     Resize(IMG_SIZE),
+    ToTensor(),
     AUG,
-    ToTensor()
 ])
 
 TRANSFORM_TESTING = Compose([
