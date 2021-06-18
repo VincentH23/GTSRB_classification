@@ -4,11 +4,12 @@ from utils.metrics import  accuracy
 import torch
 
 import torch.nn as nn
-from model import  Model1
+from model import get_model
 
 def test(args,generator):
     device = torch.device("cuda")
-    # training loop
+
+    Model1 = get_model(args)
     Model1.to(device)
     Model1.eval()
     total_acc = 0
