@@ -8,7 +8,9 @@ from model import get_model
 
 def test(args,generator,model):
     device = torch.device("cuda")
+
     model.eval()
+
     total_acc = 0
     total_loss = 0
     criterion = nn.CrossEntropyLoss()
