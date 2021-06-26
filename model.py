@@ -17,7 +17,11 @@ class Resnet_Simclr(torch.nn.Module):
         self.features_extractor = models.resnet50(False)
         self.features_extractor.fc = Identity()
         self.classifier = torch.nn.Linear(2048, 43, bias=True)
-        self.head = torch.nn.Linear(2048,128,bias=True)
+        self.head = self.head = torch.nn.Sequential(
+                torch.nn.Linear(2048, 2048),
+                torch.nn.ReLU(inplace=True),
+                torch.nn.Linear(2048, 128)
+            )
 
     def forward(self,x,output_mode = 'classifer'):
         output = self.features_extractor(x)

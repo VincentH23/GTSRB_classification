@@ -6,10 +6,8 @@ import torch
 import torch.nn as nn
 from model import get_model
 
-def test(args,generator,model):
+def test(args,generator,Model1):
     device = torch.device("cuda")
-    Model1 =model
-    Model1 = get_model(args)
     Model1.to(device)
     Model1.eval()
     total_acc = 0

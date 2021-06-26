@@ -1,5 +1,5 @@
 
-from train import train
+from train import train, contrastive_train
 from test import test
 import argparse
 
@@ -21,7 +21,10 @@ print(args)
 def main():
     if args.phase =='train':
 
-        train(args)
+        if args.constrastive :
+            contrastive_train(args)
+        else :
+            train(args)
 
     else :
         test(args)

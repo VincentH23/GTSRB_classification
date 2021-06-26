@@ -10,21 +10,22 @@ from utils.utils import normalize
 
 def train(args):
     device = torch.device("cuda")
-    state = {
+    history = {
         'epoch': 0,
-        'state_dict': None,
-        'optimizer': None,
         'training_losses': [],
         'training_accuracy':[],
         'validation_losses': [],
         'validation_accuracy': []
     }
+    state = {'state_dict': None,
+             'optimizer': None,}
 
     train_gene, val_gene, test_gene = create_data_loader(args)
     Model1 = get_model(args)
     Model1.to(device)
     Model1.train()
     optimizer = Adam(Model1.parameters(),args.lr)
+    print(Model1.parameters())
     criterion = nn.CrossEntropyLoss()
     criterion.cuda()
     for i in range (args.epoch):
@@ -41,20 +42,23 @@ def train(args):
             total_loss += loss
             acc = accuracy(outputs,labels)
             total_acc += acc
-            # print(acc)
-            # print(loss)
         print('Training : epoch : {} loss : {}  accuracy : {}'.format(i+1,total_loss/(j+1),total_acc/(j+1)))
-        state['epoch']+=1
-        state['training_losses'].append(total_loss/(j+1))
-        state['training_accuracy'].append(total_acc/(j+1))
-        acc,loss = test(args,val_gene)
-        print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
-        state['validation_losses'].append(loss)
-        state['validation_accuracy'].append(acc)
-        if (i+1)%args.epoch_save==0:
-            state['optimizer'] = optimizer.state_dict()
+        history['epoch']+=1
+        history['training_losses'].append(total_loss/(j+1))
+        history['training_accuracy'].append(total_acc/(j+1))
+        acc,loss = test(args,val_gene,Model1)
+        if acc>history['validation_accuracy'][-1]:
             state['state_dict'] = Model1.state_dict()
-            torch.save(state,'./checkpoint/state.pth')
+            state['optimizer'] = optimizer.state_dict()
+            path = './checkpoint/state_best.pth'
+            torch.save(state,path)
+        print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
+        history['validation_losses'].append(loss)
+        history['validation_accuracy'].append(acc)
+        if (i+1)%args.epoch_save==0:
+            state['state_dict'] = Model1.state_dict()
+            state['optimizer'] = optimizer.state_dict()
+            torch.save(state,'./checkpoint/state_epoch_{}.pth'.format(i+1))
 
 
 
@@ -62,10 +66,11 @@ def contrastive_train(args):
     device = torch.device("cuda")
 
     train_gene, val_gene, test_gene = create_data_loader(args)
+    args.model = 'Simclr'
     Model1 = get_model(args)
     Model1.to(device)
     Model1.train()
-    optimizer_backbone = Adam([Model1.features_extractor.parameters(),Model1.head.parameters()], args.lr)
+    optimizer_backbone = Adam([{'params':Model1.features_extractor.parameters(),'params' :Model1.head.parameters()}], args.lr)
     optimizer_classifier = Adam(Model1.classifier.parameters(), args.lr)
     criterion = nn.CrossEntropyLoss()
     criterion.cuda()
@@ -105,16 +110,18 @@ def contrastive_train(args):
 
 
 def contrastive_loss(z1, z2, labels):
+    device = z1.device
     z1, z2 = normalize(z1), normalize(z2)
-    Z = torch.cat([z1,z2])
-    labels_z1_z2 = labels.repeat((2,1))
-    labels_one_hot = torch.nn.functional.one_hot(labels_z1_z2, num_classes=43)
-    corr = Z@torch.transpose(Z)
-    corr = supress_inter_corr(corr)  # supress inter correlation Diag
+    Z = torch.cat((z1,z2))
+    labels_one_hot = torch.nn.functional.one_hot(labels, num_classes=43).type(torch.FloatTensor)
+    labels_one_hot = labels_one_hot.repeat((2,1))
+
+    corr = Z@torch.transpose(Z,0,1)
+    corr = supress_inter_corr(corr).to(device)  # supress inter correlation Diag
     loglikelyhood = torch.log(torch.softmax(corr,axis=-1))
-    positive_mask = labels_one_hot@torch.transpose(labels_one_hot)
+    positive_mask = labels_one_hot@torch.transpose(labels_one_hot,0,1).to(device)
     positive_sample_number = torch.sum(positive_mask,dim=-1,keepdim=True)
-    Lout_i = (torch.sum(loglikelyhood*positive_mask,dim=-1))/positive_sample_number
+    Lout_i = -(torch.sum(loglikelyhood*positive_mask,dim=-1))/positive_sample_number
     return torch.mean(Lout_i)
 
 
@@ -126,8 +133,6 @@ def supress_inter_corr(corr):
     corr_supress = corr[mask]
     corr_supress = torch.reshape(corr_supress,[size,size-1])
     return corr_supress
-
-
 
 
 
