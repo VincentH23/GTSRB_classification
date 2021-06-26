@@ -36,7 +36,7 @@ def train(args):
             # print(acc)
             # print(loss)
         print('Training : epoch : {} loss : {}  accuracy : {}'.format(i+1,total_loss/(j+1),total_acc/(j+1)))
-        acc,loss = test(args,val_gene)
+        acc,loss = test(args,val_gene,Model1)
         print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
 
 
