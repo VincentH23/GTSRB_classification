@@ -9,6 +9,17 @@ from test import test
 
 def train(args):
     device = torch.device("cuda")
+    best_acc =0
+    history = {
+        'epoch': 0,
+        'training_losses': [],
+        'training_accuracy':[],
+        'validation_losses': [],
+        'validation_accuracy': []
+    }
+    state = {'state_dict': None,
+             'optimizer': None}
+
     train_gene, val_gene, test_gene = create_data_loader(args)
     Model1 = get_model(args)
     Model1.to(device)
@@ -33,8 +44,23 @@ def train(args):
             # print(acc)
             # print(loss)
         print('Training : epoch : {} loss : {}  accuracy : {}'.format(i+1,total_loss/(j+1),total_acc/(j+1)))
+        history['epoch']+=1
+        history['training_losses'].append(total_loss/(j+1))
+        history['training_accuracy'].append(total_acc/(j+1))
         acc,loss = test(args,val_gene,Model1)
+        if acc >best_acc:
+            PATH = './checkpoint/best_model_CE_temperature_'+float(args.temperature)+'.pth'
+            torch.save(Model1.state_dict(), PATH)
+
+        history['validation_losses'].append(loss)
+        history['validation_accuracy'].append(acc)
         print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
+        if (i+1)%args.epoch_save==0:
+            state = {'state_dict': Model1.state_dict(),
+                     'optimizer': optimizer.state_dict() }
+            torch.save(state,'./checkpoint/state_epoch_{}.pth'.format(i+1))
+            torch.save(history,'./checkpoint/history_epoch_{}.pth'.format(i+1))
+
 
 
 def contrastive_train(args):
