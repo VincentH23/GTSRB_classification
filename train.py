@@ -9,9 +9,7 @@ from test import test
 
 def train(args):
     device = torch.device("cuda")
-
     train_gene, val_gene, test_gene = create_data_loader(args)
-
     Model1 = get_model(args)
     Model1.to(device)
     Model1.train()
@@ -35,7 +33,7 @@ def train(args):
             # print(acc)
             # print(loss)
         print('Training : epoch : {} loss : {}  accuracy : {}'.format(i+1,total_loss/(j+1),total_acc/(j+1)))
-        acc,loss = test(args,val_gene)
+        acc,loss = test(args,val_gene,Model1)
         print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
 
 
