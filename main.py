@@ -1,6 +1,6 @@
 
 from train import train
-from test import test
+from test import evaluate
 import argparse
 
 
@@ -19,6 +19,8 @@ parser.add_argument('--epoch_save',default=5,help='number of epoch between each 
 parser.add_argument('--lr',default=0.0005,help='number of epoch between each save',type = float)
 parser.add_argument('--model',default='Resnet')
 parser.add_argument('--temperature',default=1, type=int)
+parser.add_argument('--evaluate',default='testing',type = str)
+parser.add_argument('--model_dir',default='./checkpoint/best_model_CE_temperature_1.pth')
 args = parser.parse_args()
 print(args)
 
@@ -28,7 +30,8 @@ def main():
         train(args)
 
     else :
-        test(args)
+        evaluate(args)
+
 
 
 

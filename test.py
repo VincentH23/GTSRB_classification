@@ -1,5 +1,6 @@
 from data import  create_data_loader
 from torch.optim import Adam
+from model import  get_model
 from utils.metrics import  accuracy
 import torch
 
@@ -7,7 +8,6 @@ import torch.nn as nn
 
 def test(args,generator,model):
     device = torch.device("cuda")
-    # training loop
     model.to(device)
     model.eval()
     total_acc = 0
@@ -23,4 +23,17 @@ def test(args,generator,model):
             total_acc += acc
             total_loss +=loss
     return total_acc/(1+j), total_loss/(1+j)
+
+
+def evaluate(args):
+    model = get_model(args)
+    model.load_state_dict(torch.load(args.model_dir))
+    if args.evaluate =='testing':
+        _,_,test_generator = create_data_loader(args)
+        acc, loss = test(args,test_generator,model)
+        print('Testing : loss : {}  accuracy : {}'.format( loss, acc))
+    else :
+        _, validation_generator,_ = create_data_loader(args)
+        acc, loss = test(args, validation_generator, model)
+        print('Validation : loss : {}  accuracy : {}'.format(loss, acc))
 
