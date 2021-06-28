@@ -27,7 +27,8 @@ def test(args,generator,model):
 
 def evaluate(args):
     model = get_model(args)
-    model.load_state_dict(torch.load(args.model_dir))
+    dict = torch.load(args.model_dir)
+    model.load_state_dict(dict)
     if args.evaluate =='testing':
         _,_,test_generator = create_data_loader(args)
         acc, loss = test(args,test_generator,model)

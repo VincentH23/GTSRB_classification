@@ -28,38 +28,48 @@ def create_data_loader(args):
     train_generator = DataLoader(data_train,args.batch,shuffle=True)
     data_val = Custom_data_set(data['validation'], TRAINING_ROOT,transform=TRANSFORM_TESTING)
     val_generator = DataLoader(data_val, 2354)
-    test_csv = pd.read_csv(TESTING_ROOT+'/'+TESTING_CSV)
-    data_test = Custom_data_set(data['validation'], TRAINING_ROOT,csv=test_csv,transform=TRANSFORM_TESTING)
+    test_csv = pd.read_csv(TESTING_CSV,sep=';')
+    data['testing'] = list(list(test_csv['Filename']))
+    data_test = Custom_data_set(data['testing'], TESTING_ROOT ,csv=test_csv,transform=TRANSFORM_TESTING,use_csv=True)
     test_generator = DataLoader(data_test,2105)
     return train_generator, val_generator, test_generator
 
 
 class Custom_data_set(Dataset):
 
-    def __init__(self,list_data,root_dir,transform=None,csv=None):
+    def __init__(self,list_data,root_dir,transform=None,csv=None,use_csv=False):
         self.root_dir = root_dir
         self.list_data = list_data
         self.csv = csv
         self.transform = transform
+        self.use_csv = use_csv
 
     def __len__(self):
         return len(self.list_data)
 
     def __getitem__(self, idx):
 
-        if self.csv :
+        if self.use_csv:
+
             img_path = self.root_dir + '/' + self.csv.iloc[idx]['Filename']
             label = int(self.csv.iloc[idx]['ClassId'])
         else :
             img_path = self.root_dir+'/'+self.list_data[idx]
             label = int(self.list_data[idx].split('/')[0])
         image = Image.open(img_path)
+
         if self.transform:
             image = self.transform(image)
         return image , label
 
-#
-#
+
+if __name__=='__main__':
+    test_csv = pd.read_csv(TESTING_CSV, sep=';')
+    data = list(list(test_csv['Filename']))
+    data_test = Custom_data_set(data, TESTING_ROOT, csv=test_csv, transform=TRANSFORM_TESTING,use_csv=True)
+    test_generator = DataLoader(data_test, 2105)
+    next(iter(test_generator))
+
 
 
 
