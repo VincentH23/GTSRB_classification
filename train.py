@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from model import  get_model
 from test import test
-
+import os
 
 def train(args):
     device = torch.device("cuda")
@@ -49,7 +49,7 @@ def train(args):
         history['training_accuracy'].append(total_acc/(j+1))
         acc,loss = test(args,val_gene,Model1)
         if acc >best_acc:
-            PATH = './checkpoint/best_model_CE_temperature_'+float(args.temperature)+'.pth'
+            PATH = "./checkpoint/best_model_CE_temperature_"+str(args.temperature)+"pth.tar"
             torch.save(Model1.state_dict(), PATH)
 
         history['validation_losses'].append(loss)
@@ -60,6 +60,8 @@ def train(args):
                      'optimizer': optimizer.state_dict() }
             torch.save(state,'./checkpoint/state_epoch_{}.pth'.format(i+1))
             torch.save(history,'./checkpoint/history_epoch_{}.pth'.format(i+1))
+    acc,loss = test(args,test_gene,Model1)
+    print (acc,loss)
 
 
 
