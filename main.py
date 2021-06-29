@@ -20,7 +20,7 @@ parser.add_argument('--lr',default=0.0005,help='number of epoch between each sav
 parser.add_argument('--model',default='Resnet')
 parser.add_argument('--temperature',default=1, type=int)
 parser.add_argument('--evaluate',default='testing',type = str)
-parser.add_argument('--model_dir',default='./checkpoint/best_model_CE_temperature_1.pth')
+parser.add_argument('--model_dir',default='./checkpoint/best_model_CE_temperature_1.pth.tar')
 args = parser.parse_args()
 print(args)
 
