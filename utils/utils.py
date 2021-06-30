@@ -1,13 +1,15 @@
 import torch
+import matplotlib.pyplot as plt
 
-def add_noise(image):
-    noise = torch.randn(image.shape)
-    return image + noise
+class Prepocessing:
+    "change gamma for image with low luminance"
 
-def callbacks(state,val_loss):
-    if state['loss'] < val_loss:       # state include stop and previous val loss
-        state['stop'] +=1               # increase stop when val loss increase to avoid overfitting
-    else :
-        state['stop'] = 0
-    state['loss'] = val_loss
+    def __init__(self):
+        pass
 
+    def __call__(self, x):
+        low_pixels = torch.mean((torch.mean(x,axis=0)<0.2).type(torch.FloatTensor))
+        if low_pixels.item() >= 0.5:
+            I = torch.pow(x,0.5)
+            return I
+        return x

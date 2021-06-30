@@ -64,11 +64,10 @@ class Custom_data_set(Dataset):
 
 
 if __name__=='__main__':
-    test_csv = pd.read_csv(TESTING_CSV, sep=';')
-    data = list(list(test_csv['Filename']))
-    data_test = Custom_data_set(data, TESTING_ROOT, csv=test_csv, transform=TRANSFORM_TESTING,use_csv=True)
-    test_generator = DataLoader(data_test, 2105)
-    next(iter(test_generator))
+    data = data_split()
+    data_train = Custom_data_set(data['training'], TRAINING_ROOT, transform=TRANSFORM)
+    train_generator = DataLoader(data_train, 20, shuffle=True)
+    next(iter(train_generator))
 
 
 
