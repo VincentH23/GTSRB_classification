@@ -56,6 +56,8 @@ def train(args):
         history['validation_losses'].append(loss)
         history['validation_accuracy'].append(acc)
         print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
+        acc, loss = test(args, test_gene, Model1)
+        print(acc, loss)
         if (i+1)%args.epoch_save==0:
             state = {'state_dict': Model1.state_dict(),
                      'optimizer': optimizer.state_dict() }
