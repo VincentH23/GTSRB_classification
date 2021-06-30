@@ -64,21 +64,46 @@ class Custom_data_set(Dataset):
         return image , label
 
 
+class Contrastive_dataset(Dataset):
+
+    def __init__(self,list_data,root_dir,transform=None,aug=None, csv=None,use_csv=False):
+        self.root_dir = root_dir
+        self.list_data = list_data
+        self.csv = csv
+        self.transform = transform
+        self.use_csv = use_csv
+        self.aug =aug
+        self.normalize = Normalize([0.5,0.5,0.5],[0.5,0.5,0.5])
+
+    def __len__(self):
+        return len(self.list_data)
+
+    def __getitem__(self, idx):
+
+        if self.use_csv:
+
+            img_path = self.root_dir + '/' + self.csv.iloc[idx]['Filename']
+            label = int(self.csv.iloc[idx]['ClassId'])
+        else :
+            img_path = self.root_dir+'/'+self.list_data[idx]
+            label = int(self.list_data[idx].split('/')[0])
+        image = Image.open(img_path)
+        image = self.transform(image)
+        image1 = self.aug(image)
+        image1 = self.normalize(image1)
+        image2 = self.aug(image)
+        image2 = self.normalize(image2)
+        return image1 , image2, label
+
 if __name__=='__main__':
     data = data_split()
-    data_train = Custom_data_set(data['training'], TRAINING_ROOT, transform=TRANSFORM)
+    data_train = Contrastive_dataset(data['training'], TRAINING_ROOT, transform=TRANSFORM_CONTRASTIVE, aug= CONTRASTIVE_AUG)
     train_generator = DataLoader(data_train, 20, shuffle=True)
-    next(iter(train_generator))
-    test_csv = pd.read_csv(TESTING_CSV, sep=';')
-    data['testing'] = list(list(test_csv['Filename']))
-    data_test = Custom_data_set(data['testing'], TESTING_ROOT, csv=test_csv, transform=TRANSFORM_TESTING, use_csv=True)
-    test_generator = DataLoader(data_test,20)
-    I = next(iter(test_generator))
+    I =  next(iter(train_generator))
+    print (I[0].shape,I[1].shape,I[2].shape)
     plt.imshow(I[0][0].permute(1,2,0))
     plt.show()
-    print(I[1][0])
-    model = models.MobileNetV2()
-    print(model)
-
+    plt.imshow(I[1][0].permute(1, 2, 0))
+    plt.show()
 
 

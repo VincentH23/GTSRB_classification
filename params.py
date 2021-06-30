@@ -1,4 +1,4 @@
-from torchvision.transforms import ToTensor, Compose, Resize,RandomCrop, Normalize, RandomGrayscale, RandomHorizontalFlip
+from torchvision.transforms import ToTensor, Compose, Resize,RandomCrop, Normalize, RandomGrayscale, RandomHorizontalFlip, RandomChoice,RandomVerticalFlip, RandomRotation
 from utils import  Prepocessing
 TRAINING_ROOT = './data/Training'
 TESTING_ROOT = './data/Testing/Images'
@@ -16,7 +16,16 @@ TRANSFORM = Compose([
 TRANSFORM_TESTING = Compose([
     Resize(IMG_SIZE),
     ToTensor(),
-    Prepocessing(),
+    # Prepocessing(),
     Normalize([0.5,0.5,0.5],[0.5,0.5,0.5])
 ])
 
+TRANSFORM_CONTRASTIVE = Compose([
+    Resize(IMG_SIZE),
+    ToTensor()
+])
+
+
+CONTRASTIVE_AUG = RandomChoice([RandomRotation(degrees=(0,180)),
+                                RandomGrayscale(3),RandomHorizontalFlip(),
+                                RandomVerticalFlip(),RandomCrop(IMG_SIZE)])

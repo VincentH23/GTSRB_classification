@@ -24,13 +24,15 @@ class TTA(torch.nn.Module):
             merge.append(proba)
         return torch.mean(torch.stack(merge))
 
-class Resnet_Simclr(torch.nn.Module):
+class Resnet_Contrastive(torch.nn.Module):
     def __init__(self):
-        super(Resnet_Simclr, self).__init__()
+        super(Resnet_Contrastive, self).__init__()
         self.features_extractor = models.resnet50(False)
         self.features_extractor.fc = Identity()
         self.classifier = torch.nn.Linear(2048, 43, bias=True)
-        self.head = torch.nn.Linear(2048,128,bias=True)
+        self.head = torch.nn.Sequential(torch.nn.Linear(2048,128,bias=True),torch.nn.ReLU(),torch.nn.Linear(128,128,bias=True))
+
+
 
 
 def get_model(args):
@@ -39,11 +41,14 @@ def get_model(args):
         torch.manual_seed(5)
         Model1.fc = torch.nn.Linear(2048, 43, bias=True)
 
-    elif args.model =='Simclr':
-        Model1 = Resnet_Simclr()
+    elif args.model =='Contrastive':
+        Model1 = Resnet_Contrastive()
 
     return Model1
 
 
 
 
+if __name__=='__main__':
+    model = Resnet_Contrastive()
+    print(model.__dict__)
