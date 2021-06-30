@@ -1,7 +1,7 @@
 from data import  create_data_loader
 from torch.optim import Adam
 from model import  get_model
-from utils.metrics import  accuracy
+from utils import  accuracy
 import torch
 
 import torch.nn as nn
@@ -27,8 +27,8 @@ def test(args,generator,model):
 
 def evaluate(args):
     model = get_model(args)
-    dict = torch.load(args.model_dir)
-    model.load_state_dict(dict)
+    dico = torch.load(args.model_dir)
+    model.load_state_dict(dico)
     if args.evaluate =='testing':
         _,_,test_generator = create_data_loader(args)
         acc, loss = test(args,test_generator,model)

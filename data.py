@@ -1,11 +1,12 @@
 import os
 import random
-import torch
 from params import *
 from torch.utils.data import Dataset, DataLoader
-from torchvision.transforms import ToTensor, Compose, Resize
+
 import PIL.Image as Image
 import pandas as pd
+import matplotlib.pyplot as plt
+import torchvision.models as models
 
 def data_split():   # split training / validation set same distribution
     data = {'training' : [],
@@ -31,7 +32,7 @@ def create_data_loader(args):
     test_csv = pd.read_csv(TESTING_CSV,sep=';')
     data['testing'] = list(list(test_csv['Filename']))
     data_test = Custom_data_set(data['testing'], TESTING_ROOT ,csv=test_csv,transform=TRANSFORM_TESTING,use_csv=True)
-    test_generator = DataLoader(data_test,2105)
+    test_generator = DataLoader(data_test,args.batch_test)
     return train_generator, val_generator, test_generator
 
 
@@ -68,8 +69,16 @@ if __name__=='__main__':
     data_train = Custom_data_set(data['training'], TRAINING_ROOT, transform=TRANSFORM)
     train_generator = DataLoader(data_train, 20, shuffle=True)
     next(iter(train_generator))
-
-
+    test_csv = pd.read_csv(TESTING_CSV, sep=';')
+    data['testing'] = list(list(test_csv['Filename']))
+    data_test = Custom_data_set(data['testing'], TESTING_ROOT, csv=test_csv, transform=TRANSFORM_TESTING, use_csv=True)
+    test_generator = DataLoader(data_test,20)
+    I = next(iter(test_generator))
+    plt.imshow(I[0][0].permute(1,2,0))
+    plt.show()
+    print(I[1][0])
+    model = models.MobileNetV2()
+    print(model)
 
 
 

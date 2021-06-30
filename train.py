@@ -1,6 +1,6 @@
 from data import  create_data_loader
 from torch.optim import Adam
-from utils.metrics import accuracy
+from utils import accuracy
 import torch
 import torch.nn as nn
 from model import  get_model

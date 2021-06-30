@@ -1,6 +1,6 @@
 import torchvision.models as models
 import torch
-
+from torch.nn.functional import softmax
 
 
 class Identity(torch.nn.Module):
@@ -10,6 +10,19 @@ class Identity(torch.nn.Module):
     def forward(self, x):
         return x
 
+class TTA(torch.nn.Module):
+    def __init__(self,model,transforms):
+        super(TTA, self).__init__()
+        self.model = model
+        self.transforms = transforms
+
+    def forward(self , x):
+        merge =[]
+        for transform in self.transforms :
+            output = self.model(transform(x))
+            proba = softmax(output,dim=-1)
+            merge.append(proba)
+        return torch.mean(torch.stack(merge))
 
 class Resnet_Simclr(torch.nn.Module):
     def __init__(self):

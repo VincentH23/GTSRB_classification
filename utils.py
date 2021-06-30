@@ -1,6 +1,14 @@
 import torch
 import matplotlib.pyplot as plt
 
+
+def accuracy(output,target):
+    compar = torch.argmax(output,1)==target
+    compar= compar.type(torch.FloatTensor)
+    acc = torch.mean(compar)
+    return acc
+
+
 class Prepocessing:
     "change gamma for image with low luminance"
 
