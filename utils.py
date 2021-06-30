@@ -8,6 +8,12 @@ def accuracy(output,target):
     acc = torch.mean(compar)
     return acc
 
+def contrastive_loss(h1,h2,labels):
+    labels = labels.view(-1,1)
+    mask =
+    #to complete
+    pass
+
 
 class Prepocessing:
     "change gamma for image with low luminance"

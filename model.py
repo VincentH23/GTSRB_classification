@@ -1,6 +1,6 @@
 import torchvision.models as models
 import torch
-from torch.nn.functional import softmax
+from torch.nn.functional import softmax, normalize
 
 
 class Identity(torch.nn.Module):
@@ -32,6 +32,16 @@ class Resnet_Contrastive(torch.nn.Module):
         self.classifier = torch.nn.Linear(2048, 43, bias=True)
         self.head = torch.nn.Sequential(torch.nn.Linear(2048,128,bias=True),torch.nn.ReLU(),torch.nn.Linear(128,128,bias=True))
 
+    def forward(self, x ,mode='classifer'):
+        features = self.features_extractor(x)
+        if mode =='classifier':
+            return features, self.classifier(features)
+
+        elif mode =='head':
+            head = normalize(self.head(features),dim=1)
+            return  features, head
+
+
 
 
 
@@ -50,5 +60,8 @@ def get_model(args):
 
 
 if __name__=='__main__':
-    model = Resnet_Contrastive()
-    print(model.__dict__)
+    Model1 = Resnet_Contrastive()
+    optimizer = torch.optim.Adam([{'params': Model1.features_extractor.parameters()},
+                     {'params': Model1.head.parameters()}],0.01)
+    print((optimizer))
+    Model1(x,mode='head')
