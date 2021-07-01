@@ -43,15 +43,16 @@ def test_contrastive(args,generator,model):
     device = torch.device("cuda")
     model.to(device)
     model.eval()
+    total_acc = 0
     total_loss = 0
+    criterion = nn.CrossEntropyLoss()
+    criterion.cuda()
     for j, data in enumerate(generator):
-        images1, images2, labels = data[0].to(device), data[1].to(device), data[2].to(device)
-        images = torch.cat([images1, images2])
+        images, labels = data[0].to(device), data[1].to(device)
         with torch.no_grad():
-            batch_size = images1.shape[0]
-            h1, h2 = torch.split(H, [batch_size, batch_size])
-            h1, h2 = torch.split(H, [args.batch, args.batch])
-            loss = contrastive_loss(h1, h2, labels)
+            _,_,outputs = model(images)
+            acc = accuracy(outputs, labels)
+            loss = criterion(outputs, labels)
+            total_acc += acc
             total_loss += loss
-
-    return total_loss/(1+j)
+    return total_acc / (1 + j), total_loss / (1 + j)

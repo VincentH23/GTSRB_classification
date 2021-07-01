@@ -6,6 +6,7 @@ import torch.nn as nn
 from model import  get_model
 from test import test, test_contrastive
 import os
+from math import cos, pi
 
 def train(args):
     device = torch.device("cuda")
@@ -77,7 +78,9 @@ def contrastive_train(args):
     history = {
         'epoch': 0,
         'training_losses': [],
-        'validation_losses': []
+        'training_accuracy': [],
+        'validation_losses': [],
+        'validation_accuracy': []
     }
     state = {'state_dict': None,
              'optimizer': None}
@@ -87,31 +90,43 @@ def contrastive_train(args):
     Model1.to(device)
     Model1.train()
 
-    optimizer = torch.optim.SGD([{'params': Model1.features_extractor.parameters()},
-                                  {'params': Model1.head.parameters()}], args.lr,momentum=0.9,weight_decay=1e-4)
+    optimizer = torch.optim.SGD(Model1.parameters(), args.lr,momentum=0.9,weight_decay=1e-4)
+    criterion = nn.CrossEntropyLoss()
+    criterion.cuda()
     for i in range(args.epoch):
         total_loss = 0
+        total_acc = 0
         # training loop
-        adjust_learning_rate(args,optimizer,i+1)
+
         for j, data in enumerate(train_gene):
             images1, images2, labels = data[0].to(device), data[1].to(device), data[2].to(device)
             optimizer.zero_grad()
             images = torch.cat([images1,images2])
-            _, H = Model1(images,mode='head')
+            _,head, classifier = Model1(images)
             batch_size = images1.shape[0]
-            h1,h2 = torch.split(H,[batch_size,batch_size])
+            h1,h2 = torch.split(head,[batch_size,batch_size])
             loss = contrastive_loss(h1,h2,labels)
+            decay = cos(2*pi*i/args.epoch)
+            loss = decay * loss + (1-decay)*criterion(classifier[:batch_size],labels)
             loss.backward()
             optimizer.step()
             total_loss += loss
+            total_acc += accuracy(classifier[:batch_size],labels)
         print('Training : epoch : {} loss : {}  '.format(i + 1, total_loss / (j + 1)))
         history['epoch'] += 1
         history['training_losses'].append(total_loss / (j + 1))
-
-        loss = test_contrastive(args,val_gene,Model1)
+        history['training_accuracy'].append(total_acc / (j + 1))
+        acc, loss = test_contrastive(args, val_gene, Model1)
+        if acc > best_acc:
+            best_acc = acc
+            PATH = "./checkpoint/best_model_Contrastive" + ".pth.tar"
+            torch.save(Model1.state_dict(), PATH)
 
         history['validation_losses'].append(loss)
-        print('Validation : epoch : {} loss : {} '.format(i + 1, loss))
+        history['validation_accuracy'].append(acc)
+        print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
+        acc, loss = test(args, test_gene, Model1)
+        print(acc, loss)
 
         if (i + 1) % args.epoch_save == 0:
             state = {'state_dict': Model1.state_dict(),

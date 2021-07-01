@@ -32,14 +32,11 @@ class Resnet_Contrastive(torch.nn.Module):
         self.classifier = torch.nn.Linear(2048, 43, bias=True)
         self.head = torch.nn.Sequential(torch.nn.Linear(2048,128,bias=True),torch.nn.ReLU(),torch.nn.Linear(128,128,bias=True))
 
-    def forward(self, x ,mode='classifer'):
+    def forward(self, x ):
         features = self.features_extractor(x)
-        if mode =='classifier':
-            return features, self.classifier(features)
-
-        elif mode =='head':
-            head = normalize(self.head(features),dim=1)
-            return  features, head
+        head = normalize(self.head(features),dim=1)
+        classifier = self.classifier(features)
+        return features, head , classifier
 
 
 
@@ -67,3 +64,5 @@ if __name__=='__main__':
     # print((optimizer))
     # Model1(x,mode='head')
     print(Model1.features_extractor.conv1.weight[0][0,0])
+    for param in Model1.parameters():
+        print(param)
