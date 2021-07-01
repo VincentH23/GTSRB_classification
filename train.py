@@ -4,7 +4,7 @@ from utils import accuracy, contrastive_loss
 import torch
 import torch.nn as nn
 from model import  get_model
-from test import test
+from test import test, test_contrastive
 import os
 
 def train(args):
@@ -105,21 +105,16 @@ def contrastive_train(args):
         history['epoch'] += 1
         history['training_losses'].append(total_loss / (j + 1))
 
-
-        ##To complete
-        acc, loss = test(args, val_gene, Model1)
+        loss = test_contrastive(args,val_gene,Model1)
 
         history['validation_losses'].append(loss)
-        history['validation_accuracy'].append(acc)
-        print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
-        acc, loss = test(args, test_gene, Model1)
-        print(acc, loss)
+        print('Validation : epoch : {} loss : {} '.format(i + 1, loss))
+
         if (i + 1) % args.epoch_save == 0:
             state = {'state_dict': Model1.state_dict(),
                      'optimizer': optimizer.state_dict()}
             torch.save(state, './checkpoint/state_epoch_{}.pth.tar'.format(i + 1))
             torch.save(history, './checkpoint/history_epoch_{}.pth.tar'.format(i + 1))
-    acc, loss = test(args, test_gene, Model1)
-    print(acc, loss)
+
 
 

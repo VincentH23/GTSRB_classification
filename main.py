@@ -1,5 +1,5 @@
 
-from train import train
+from train import train, contrastive_train
 from test import evaluate, test
 import argparse
 from data import create_data_loader
@@ -17,7 +17,7 @@ parser.add_argument('--patience',default=10,help= "number of epochs where valida
 parser.add_argument('--constrastive',default=False, help="add the contrastive learning",type=bool)
 parser.add_argument('--loss_weight',type=list)
 parser.add_argument('--epoch_save',default=5,help='number of epoch between each save',type = int)
-parser.add_argument('--lr',default=0.0005,help='number of epoch between each save',type = float)
+parser.add_argument('--lr',default=0.001,help='number of epoch between each save',type = float)
 parser.add_argument('--model',default='Resnet')
 parser.add_argument('--temperature',default=1, type=int)
 parser.add_argument('--evaluate',default='testing',type = str)
@@ -27,16 +27,20 @@ print(args)
 
 def main():
     if args.phase =='train':
+        if args.contrastive:
+            args.model = 'Contrastive'
+            contrastive_train(args)
 
-        train(args)
-        train_gene, val_gene, test_gene = create_data_loader(args)
-        Model1 = get_model(args)
-        acc,loss =test(args,test_gene,Model1)
-        print('ab',acc,loss)
-        dico = torch.load("./checkpoint/best_model_CE_temperature_1.pth.tar")
-        Model1.load_state_dict(dico)
-        acc, loss = test(args, test_gene, Model1)
-        print('ab', acc, loss)
+        else:
+            train(args)
+            train_gene, val_gene, test_gene = create_data_loader(args)
+            Model1 = get_model(args)
+            acc,loss =test(args,test_gene,Model1)
+            print('ab',acc,loss)
+            dico = torch.load("./checkpoint/best_model_CE_temperature_1.pth.tar")
+            Model1.load_state_dict(dico)
+            acc, loss = test(args, test_gene, Model1)
+            print('ab', acc, loss)
     else :
         evaluate(args)
 

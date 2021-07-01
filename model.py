@@ -60,8 +60,9 @@ def get_model(args):
 
 
 if __name__=='__main__':
-    Model1 = Resnet_Contrastive()
-    optimizer = torch.optim.Adam([{'params': Model1.features_extractor.parameters()},
-                     {'params': Model1.head.parameters()}],0.01)
-    print((optimizer))
-    Model1(x,mode='head')
+    print('a')
+    # Model1 = Resnet_Contrastive()
+    # optimizer = torch.optim.Adam([{'params': Model1.features_extractor.parameters()},
+    #                  {'params': Model1.head.parameters()}],0.01)
+    # print((optimizer))
+    # Model1(x,mode='head')
