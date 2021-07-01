@@ -6,7 +6,7 @@ import torch.nn as nn
 from model import  get_model
 from test import test, test_contrastive
 import os
-from math import cos, pi
+
 
 def train(args):
     device = torch.device("cuda")
@@ -86,7 +86,9 @@ def contrastive_train(args):
              'optimizer': None}
 
     train_gene, val_gene, test_gene = create_data_loader_contrastive(args)
-    Model1 = get_model(args)
+    Model1,Classifier = get_model(args)
+    Classifier.to(device)
+    Classifier.train()
     Model1.to(device)
     Model1.train()
 
@@ -96,23 +98,33 @@ def contrastive_train(args):
     for i in range(args.epoch):
         total_loss = 0
         total_acc = 0
+        total_loss1 = 0
+        total_loss2 = 0
         # training loop
 
         for j, data in enumerate(train_gene):
             images1, images2, labels = data[0].to(device), data[1].to(device), data[2].to(device)
             optimizer.zero_grad()
             images = torch.cat([images1,images2])
-            _,head, classifier = Model1(images)
+            feature, head = Model1(images)
+            classifier = Classifier(feature[:batch_size])
             batch_size = images1.shape[0]
             h1,h2 = torch.split(head,[batch_size,batch_size])
-            loss = contrastive_loss(h1,h2,labels)
-            decay = cos(2*pi*i/args.epoch)
-            loss = decay * loss + (1-decay)*criterion(classifier[:batch_size],labels)
+            features = torch.cat([h1.unsqueeze(1), h2.unsqueeze(1)], dim=1)
+            loss1 = contrastive_loss(features,labels)
+            decay = max(0,1-(i/args.epoch)**2)
+            loss2 = criterion(classifier,labels)
+            loss = decay * loss1 + (1-decay)*0.1*loss2
             loss.backward()
             optimizer.step()
+            total_loss1 += loss1
+            total_loss2+= loss2
+            print(loss)
             total_loss += loss
-            total_acc += accuracy(classifier[:batch_size],labels)
-        print('Training : epoch : {} loss : {}  '.format(i + 1, total_loss / (j + 1)))
+            total_acc += accuracy(classifier,labels)
+
+        print(total_loss1/(1+j),total_loss2/(1+j),decay)
+        print('Training : epoch : {} loss : {} acc : {} '.format(i + 1, total_loss / (j + 1),total_acc / (j + 1)))
         history['epoch'] += 1
         history['training_losses'].append(total_loss / (j + 1))
         history['training_accuracy'].append(total_acc / (j + 1))
@@ -125,7 +137,7 @@ def contrastive_train(args):
         history['validation_losses'].append(loss)
         history['validation_accuracy'].append(acc)
         print('Validation : epoch : {} loss : {}  accuracy : {}'.format(i + 1, loss, acc))
-        acc, loss = test(args, test_gene, Model1)
+        acc, loss = test_contrastive(args, test_gene, Model1)
         print(acc, loss)
 
         if (i + 1) % args.epoch_save == 0:
