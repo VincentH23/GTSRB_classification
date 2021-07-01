@@ -86,7 +86,8 @@ class Contrastive_dataset(Dataset):
         self.transform = transform
         self.use_csv = use_csv
         self.aug =aug
-        self.normalize = Normalize([0.5,0.5,0.5],[0.5,0.5,0.5])
+        self.normalize = Normalize(mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225],)
 
     def __len__(self):
         return len(self.list_data)
@@ -103,16 +104,19 @@ class Contrastive_dataset(Dataset):
         image = Image.open(img_path)
         image = self.transform(image)
         image1 = self.aug(image)
-        # image1 = self.normalize(image1)
+        image1 = self.normalize(image1)
         image2 = self.aug(image)
-        # image2 = self.normalize(image2)
+        image2 = self.normalize(image2)
         return image1 , image2, label
 
 if __name__=='__main__':
     data = data_split()
     data_train = Contrastive_dataset(data['training'], TRAINING_ROOT, transform=TRANSFORM_CONTRASTIVE, aug= CONTRASTIVE_AUG)
-    train_generator = DataLoader(data_train, 50, shuffle=True)
+    train_generator = DataLoader(data_train, 10, shuffle=True)
     I =  next(iter(train_generator))
+    model = Resnet_Contrastive()
+    A = model(I[0],mode='head')
+    print(torch.sum(A[1]**2,dim=-1))
     # print (I[0].shape,I[1].shape,I[2].shape)
     # plt.imshow(I[0][0].permute(1,2,0))
     # plt.show()
@@ -131,9 +135,9 @@ if __name__=='__main__':
     # Model = Resnet_Contrastive()
     # A = Model(I[0],mode='head')
     # print(A[1].shape)
-    M = I[2].view(-1,1)
-    print(M)
-    print(M.T)
-    print(torch.eq(M,M.T))
+    # M = I[2].view(-1,1)
+    # print(M)
+    # print(M.T)
+    # print(torch.eq(M,M.T))
 
 

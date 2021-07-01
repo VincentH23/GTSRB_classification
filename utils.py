@@ -1,6 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
-
+import math
 
 def accuracy(output,target):
     compar = torch.argmax(output,1)==target
@@ -38,6 +38,15 @@ def contrastive_loss(h1,h2,labels):
 
     return loss
 
+def adjust_learning_rate(args, optimizer, epoch):
+    lr = args.lr
+    if True:
+        eta_min = lr * (0.1** 3)
+        lr = eta_min + (lr - eta_min) * (
+                1 + math.cos(math.pi * epoch / args.epoch)) / 2
+
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
 
 class Prepocessing:
     "change gamma for image with low luminance"

@@ -1,6 +1,6 @@
 from data import  create_data_loader, create_data_loader_contrastive
 from torch.optim import Adam
-from utils import accuracy, contrastive_loss
+from utils import accuracy, contrastive_loss, adjust_learning_rate
 import torch
 import torch.nn as nn
 from model import  get_model
@@ -27,6 +27,7 @@ def train(args):
     optimizer = Adam(Model1.parameters(),args.lr)
     criterion = nn.CrossEntropyLoss()
     criterion.cuda()
+
     for i in range (args.epoch):
         total_loss = 0
         total_acc = 0
@@ -86,17 +87,19 @@ def contrastive_train(args):
     Model1.to(device)
     Model1.train()
 
-    optimizer = torch.optim.Adam([{'params': Model1.features_extractor.parameters()},
-                                  {'params': Model1.head.parameters()}], args.lr)
+    optimizer = torch.optim.SGD([{'params': Model1.features_extractor.parameters()},
+                                  {'params': Model1.head.parameters()}], args.lr,momentum=0.9,weight_decay=1e-4)
     for i in range(args.epoch):
         total_loss = 0
         # training loop
+        adjust_learning_rate(args,optimizer,i+1)
         for j, data in enumerate(train_gene):
             images1, images2, labels = data[0].to(device), data[1].to(device), data[2].to(device)
             optimizer.zero_grad()
             images = torch.cat([images1,images2])
             _, H = Model1(images,mode='head')
-            h1,h2 = torch.split(H,[args.batch,args.batch])
+            batch_size = images1.shape[0]
+            h1,h2 = torch.split(H,[batch_size,batch_size])
             loss = contrastive_loss(h1,h2,labels)
             loss.backward()
             optimizer.step()

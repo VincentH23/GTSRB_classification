@@ -48,7 +48,8 @@ def test_contrastive(args,generator,model):
         images1, images2, labels = data[0].to(device), data[1].to(device), data[2].to(device)
         images = torch.cat([images1, images2])
         with torch.no_grad():
-            _, H = model(images, mode='head')
+            batch_size = images1.shape[0]
+            h1, h2 = torch.split(H, [batch_size, batch_size])
             h1, h2 = torch.split(H, [args.batch, args.batch])
             loss = contrastive_loss(h1, h2, labels)
             total_loss += loss
