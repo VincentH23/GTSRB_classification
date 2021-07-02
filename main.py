@@ -27,14 +27,7 @@ def main():
     if args.phase =='train':
 
         train(args)
-        train_gene, val_gene, test_gene = create_data_loader(args)
-        Model1 = get_model(args)
-        acc,loss =test(args,test_gene,Model1)
-        print('ab',acc,loss)
-        dico = torch.load("./checkpoint/best_model_CE_temperature_1.pth.tar")
-        Model1.load_state_dict(dico)
-        acc, loss = test(args, test_gene, Model1)
-        print('ab', acc, loss)
+
     else :
         evaluate(args)
 
