@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 from model import  get_model
 from test import test
-import os
 
 def train(args):
     device = torch.device("cuda")
@@ -67,14 +66,6 @@ def train(args):
     print (acc,loss)
 
 
-
-def contrastive_train(args):
-    device = torch.device("cuda")
-
-    train_gene, val_gene, test_gene = create_data_loader(args)
-    Model1 = get_model(args)
-    Model1.to(device)
-    Model1.train()
 
 
 

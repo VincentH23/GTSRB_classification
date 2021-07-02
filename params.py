@@ -4,7 +4,7 @@ TRAINING_ROOT = './data/Training'
 TESTING_ROOT = './data/Testing/Images'
 TESTING_CSV = './data/Testing/GT-final_test.csv'
 IMG_SIZE = (50,50)
-AUG = Compose([RandomCrop(IMG_SIZE),RandomGrayscale(3),RandomHorizontalFlip()])
+AUG = Compose([RandomCrop(IMG_SIZE)])
 TRANSFORM = Compose([
     Resize(IMG_SIZE),
     ToTensor(),

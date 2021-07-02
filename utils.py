@@ -1,5 +1,4 @@
 import torch
-import matplotlib.pyplot as plt
 
 
 def accuracy(output,target):
@@ -16,7 +15,7 @@ class Prepocessing:
         pass
 
     def __call__(self, x):
-        low_pixels = torch.mean((torch.mean(x,axis=0)<0.2).type(torch.FloatTensor))
+        low_pixels = torch.mean((torch.mean(x,dim=0)<0.2).type(torch.FloatTensor))
         if low_pixels.item() >= 0.5:
             I = torch.pow(x,0.5)
             return I
