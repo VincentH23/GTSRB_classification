@@ -5,8 +5,6 @@ from torch.utils.data import Dataset, DataLoader
 
 import PIL.Image as Image
 import pandas as pd
-import matplotlib.pyplot as plt
-import torchvision.models as models
 
 def data_split():   # split training / validation set same distribution
     data = {'training' : [],
@@ -64,21 +62,7 @@ class Custom_data_set(Dataset):
         return image , label
 
 
-if __name__=='__main__':
-    data = data_split()
-    data_train = Custom_data_set(data['training'], TRAINING_ROOT, transform=TRANSFORM)
-    train_generator = DataLoader(data_train, 20, shuffle=True)
-    next(iter(train_generator))
-    test_csv = pd.read_csv(TESTING_CSV, sep=';')
-    data['testing'] = list(list(test_csv['Filename']))
-    data_test = Custom_data_set(data['testing'], TESTING_ROOT, csv=test_csv, transform=TRANSFORM_TESTING, use_csv=True)
-    test_generator = DataLoader(data_test,20)
-    I = next(iter(test_generator))
-    plt.imshow(I[0][0].permute(1,2,0))
-    plt.show()
-    print(I[1][0])
-    model = models.MobileNetV2()
-    print(model)
+
 
 
 
